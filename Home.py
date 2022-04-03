@@ -10,6 +10,7 @@ from kivy.lang import Builder
 #Variáveis Globais:
 global name
 global bitword
+global bitname
 counter = 0
 score = 0
 global correct
@@ -121,6 +122,11 @@ class Login(Screen):
     def btn(self):
         name = self.username.text
         print("Olá, ", name)
+        if name == "Victor":
+            bitname = 0
+        elif name == "Pedro":
+            bitname = 1
+        print(bitname)
 
 class Game(Screen):
     content = StringProperty("Pressione qualquer botão para iniciar")
