@@ -22,10 +22,14 @@ global bitname
 counter = 0
 score = 0
 popup_wrong = Popup(title='Errado', content=Label(text='Resposta errada'), size_hint=(None, None), size=(400, 400))
-popup_correct = Popup(title='Certo', content=Label(text='Resposta correta'), size_hint=(None, None),size=(400, 400))
+popup_correct = Popup(title='Certo', content=Label(text='Resposta correta'), size_hint=(None, None), size=(400, 400))
 #Variáveis recebidas pela FPGA
 global correct
 correct = 0
+global enable
+enable = 0
+
+
 #Armazena as perguntas, acessadas via contador
 def questions(counter):
     questions = ["Qual bicho transmite Doença de Chagas?",
@@ -136,6 +140,7 @@ def verify():
 class Login(Screen):
     username = ObjectProperty(None)
     def btn(self):
+        global bitname
         name = self.username.text
         print("Olá, ", name)
         if name == "Victor":
@@ -161,12 +166,18 @@ class Game(Screen):
         self.contentC = "Alternativa C"
         self.contentD = "Alternativa D"
 
+    def first(self):
+        #Em teoria, a função deve passar para a fpga o sinal bitname
+        global counter
+        if counter < 16:
+            global bitname
+            print(bitname)
 
     def btnA(self):
         bitword = "1000"
         print(bitword)
         global counter
-        if counter > 0:
+        if 0 < counter < 16:
             if correct == 0:
                 popup_wrong.open()
             else:
@@ -191,7 +202,7 @@ class Game(Screen):
         bitword = "0100"
         print(bitword)
         global counter
-        if counter > 0:
+        if 0 < counter < 16:
             if correct == 0:
                 popup_wrong.open()
             else:
@@ -214,7 +225,7 @@ class Game(Screen):
         bitword = "0010"
         print(bitword)
         global counter
-        if counter > 0:
+        if 0 < counter < 16:
             if correct == 0:
                 popup_wrong.open()
             else:
@@ -238,7 +249,7 @@ class Game(Screen):
         bitword = "0001"
         print(bitword)
         global counter
-        if counter > 0:
+        if 0 < counter < 16:
             if correct == 0:
                 popup_wrong.open()
             else:

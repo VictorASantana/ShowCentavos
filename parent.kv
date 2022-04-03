@@ -58,6 +58,14 @@ Home:
             text: root.content
             id: content
         Button:
+            id: answer
+            text: "Responder"
+            background_color: 0.8, 0, 0.6, 1
+            pos_hint: {"x":0.2, "y":.4}
+            size_hint: 0.3, 0.2
+            on_press:root.first()
+
+        Button:
             id: contentA
             text:root.contentA
             background_color: 0.8, 0, 0.6, 1
