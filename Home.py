@@ -67,7 +67,7 @@ def on_connect(client, userdata, flags, rc):
 
 # MQTT (Callback de mensagem)
 def on_message(client, userdata, msg):
-    print(msg.topic+" "+str(msg.payload)) # Printa no terminal o topico alterado
+    #print(msg.topic+" "+str(msg.payload)) # Printa no terminal o topico alterado
     
     global correct
     global ledAceso
@@ -240,10 +240,14 @@ class Game(Screen):
         self.contentB = "Alternativa B"
         self.contentC = "Alternativa C"
         self.contentD = "Alternativa D"
+        client.publish(user+"/S0", payload="0", qos=0, retain=False)
+        zeraResposta()
+        client.publish(user+"/S1", payload="1", qos=0, retain=False)
+        time.sleep(0.1)
+        client.publish(user+"/S1", payload="0", qos=0, retain=False)
 
     def first(self):
-        #Em teoria, a função deve passar para a fpga o sinal bitname
-        #Creio que essa função não precisa pq o bitname seleciona o que vai enviar para o MQTT no próprio código
+        #Acho q o app não entra nessa função
         global counter
         if counter < 16:
             global bitname
@@ -252,6 +256,9 @@ class Game(Screen):
     def btnA(self):
         bitword = "1000"
         # print(bitword)
+        
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        client.publish(user+"/S0", payload="1", qos=0, retain=False)
         
         global qualJogadorResponde
         global correct
@@ -296,6 +303,9 @@ class Game(Screen):
         bitword = "0100"
         # print(bitword)
         
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        client.publish(user+"/S0", payload="1", qos=0, retain=False)
+        
         global correct
         correct = -1
         
@@ -334,6 +344,9 @@ class Game(Screen):
     def btnC(self):
         bitword = "0010"
         # print(bitword)
+        
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        client.publish(user+"/S0", payload="1", qos=0, retain=False)
         
         global correct
         correct = -1
@@ -374,6 +387,9 @@ class Game(Screen):
     def btnD(self):
         bitword = "0001"
         # print(bitword)
+        
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        client.publish(user+"/S0", payload="1", qos=0, retain=False)
         
         global correct
         correct = -1
