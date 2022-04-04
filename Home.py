@@ -45,16 +45,59 @@ KeepAlive = 60
 # MQTT (Callback de conexao)
 def on_connect(client, userdata, flags, rc):
     print("Conectado com codigo " + str(rc))
+    client.subscribe(user+"/E0", qos=0) # Resposta A Jogador 1
+    client.subscribe(user+"/E1", qos=0) # Resposta B Jogador 1
+    client.subscribe(user+"/E2", qos=0) # Resposta C Jogador 1
+    client.subscribe(user+"/E3", qos=0) # Resposta D Jogador 1
+    client.subscribe(user+"/E4", qos=0) # Resposta A Jogador 2
+    client.subscribe(user+"/E5", qos=0) # Resposta B Jogador 2
+    client.subscribe(user+"/E6", qos=0) # Resposta C Jogador 2
+    client.subscribe(user+"/E7", qos=0) # Resposta D Jogador 2
+    client.subscribe(user+"/S0", qos=0) # Jogar
+    client.subscribe(user+"/S1", qos=0) # Reset
+    #client.subscribe(user+"/S2", qos=0) # Botao Jogador 1
+    #client.subscribe(user+"/S3", qos=0) # Botao Jogador 2
+    client.subscribe(user+"/S4", qos=0) # Led Jogador 1
+    client.subscribe(user+"/S5", qos=0) # Led Jogador 2
+    client.subscribe(user+"/S6", qos=0) # Acertou Pergunta
+    client.subscribe(user+"/S7", qos=0) # Vitoria Jogador 1
+    client.subscribe(user+"/RX", qos=0) # Vitoria Jogador 2
+    client.subscribe(user+"/TX", qos=0) # Empate
 
 # MQTT (Callback de mensagem)
 def on_message(client, userdata, msg):
     print(msg.topic+" "+str(msg.payload)) # Printa no terminal o topico alterado
+    
+    global correct
+    global ledAceso
+    
+    if ((str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'") or 
+        (str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'1'")) :
+        ledAceso = 1
+    elif ((str(msg.topic+" "+str(msg.payload)) == user+"/S6 b'1'") and 
+          (ledAceso == 1)) :
+        correct = 1
+    elif (((str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'0'") or 
+           (str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'0'")) and
+           (correct == -1)) :
+        correct = 0
+        ledAceso = 0
 
 # MQTT Cria cliente
 client = mqtt.Client()
 client.on_connect = on_connect      
 client.on_message = on_message  
 client.username_pw_set(user, passwd)
+
+def zeraResposta():
+    client.publish(user+"/E0", payload="0", qos=0, retain=False)
+    client.publish(user+"/E1", payload="0", qos=0, retain=False)
+    client.publish(user+"/E2", payload="0", qos=0, retain=False)
+    client.publish(user+"/E3", payload="0", qos=0, retain=False)
+    client.publish(user+"/E4", payload="0", qos=0, retain=False)
+    client.publish(user+"/E5", payload="0", qos=0, retain=False)
+    client.publish(user+"/E6", payload="0", qos=0, retain=False)
+    client.publish(user+"/E7", payload="0", qos=0, retain=False)
 
 #Armazena as perguntas, acessadas via contador
 def questions(counter):
@@ -194,6 +237,7 @@ class Game(Screen):
 
     def first(self):
         #Em teoria, a função deve passar para a fpga o sinal bitname
+        #Creio que essa função não precisa pq o bitname seleciona o que vai enviar para o MQTT no próprio código
         global counter
         if counter < 16:
             global bitname
@@ -201,13 +245,29 @@ class Game(Screen):
 
     def btnA(self):
         bitword = "1000"
-        print(bitword)
+        # print(bitword)
+        
+        global correct
+        correct = -1
+        
+        global bitname
+        if bitname == 0 :
+            client.publish(user+"/E0", payload="1", qos=0, retain=False)
+        elif bitname == 1 :
+            client.publish(user+"/E4", payload="1", qos=0, retain=False)
+
         global counter
         if 0 < counter < 16:
+            while correct == -1:
+                time.sleep(0.1)
+
             if correct == 0:
                 popup_wrong.open()
             else:
                 popup_correct.open()
+            
+            zeraResposta()
+            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -226,13 +286,29 @@ class Game(Screen):
 
     def btnB(self):
         bitword = "0100"
-        print(bitword)
+        # print(bitword)
+        
+        global correct
+        correct = -1
+        
+        global bitname
+        if bitname == 0 :
+            client.publish(user+"/E1", payload="1", qos=0, retain=False)
+        elif bitname == 1 :
+            client.publish(user+"/E5", payload="1", qos=0, retain=False)
+
         global counter
         if 0 < counter < 16:
+            while correct == -1:
+                time.sleep(0.1)
+                
             if correct == 0:
                 popup_wrong.open()
             else:
                 popup_correct.open()
+                
+            zeraResposta()
+            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -249,13 +325,29 @@ class Game(Screen):
 
     def btnC(self):
         bitword = "0010"
-        print(bitword)
+        # print(bitword)
+        
+        global correct
+        correct = -1
+        
+        global bitname
+        if bitname == 0 :
+            client.publish(user+"/E2", payload="1", qos=0, retain=False)
+        elif bitname == 1 :
+            client.publish(user+"/E6", payload="1", qos=0, retain=False)
+            
         global counter
         if 0 < counter < 16:
+            while correct == -1:
+                time.sleep(0.1)
+                
             if correct == 0:
                 popup_wrong.open()
             else:
                 popup_correct.open()
+                
+            zeraResposta()
+            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -273,13 +365,29 @@ class Game(Screen):
 
     def btnD(self):
         bitword = "0001"
-        print(bitword)
+        # print(bitword)
+        
+        global correct
+        correct = -1
+        
+        global bitname
+        if bitname == 0 :
+            client.publish(user+"/E3", payload="1", qos=0, retain=False)
+        elif bitname == 1 :
+            client.publish(user+"/E7", payload="1", qos=0, retain=False)
+        
         global counter
         if 0 < counter < 16:
+            while correct == -1:
+                time.sleep(0.1)
+                
             if correct == 0:
                 popup_wrong.open()
             else:
                 popup_correct.open()
+                
+            zeraResposta()
+            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -318,6 +426,8 @@ class ParentApp(App):
 if __name__ == "__main__":
     client.connect(Broker, Port, KeepAlive)
     client.loop_start()
+    
+    zeraResposta()
     
     ParentApp().run()
     
