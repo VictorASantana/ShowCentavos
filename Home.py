@@ -25,6 +25,7 @@ global ledAceso
 ledAceso = 0
 global correct
 correct = -1
+global qualJogadorResponde
 
 #Variáveis usadas pela própria interface
 counter = 0
@@ -70,10 +71,14 @@ def on_message(client, userdata, msg):
     
     global correct
     global ledAceso
+    global qualJogadorResponde
     
-    if ((str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'") or 
-        (str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'1'")) :
+    if str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'" :
         ledAceso = 1
+        qualJogadorResponde = 0
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'1'" :
+        ledAceso = 1
+        qualJogadorResponde = 1
     elif ((str(msg.topic+" "+str(msg.payload)) == user+"/S6 b'1'") and 
           (ledAceso == 1)) :
         correct = 1
@@ -82,6 +87,7 @@ def on_message(client, userdata, msg):
            (correct == -1)) :
         correct = 0
         ledAceso = 0
+        qualJogadorResponde = 0
 
 # MQTT Cria cliente
 client = mqtt.Client()
@@ -247,6 +253,7 @@ class Game(Screen):
         bitword = "1000"
         # print(bitword)
         
+        global qualJogadorResponde
         global correct
         correct = -1
         
@@ -261,10 +268,11 @@ class Game(Screen):
             while correct == -1:
                 time.sleep(0.1)
 
-            if correct == 0:
-                popup_wrong.open()
-            else:
+            # Só considera certo se você pediu para apertar a resposta primeiro
+            if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
+            else:
+                popup_wrong.open()
             
             zeraResposta()
             
@@ -302,10 +310,10 @@ class Game(Screen):
             while correct == -1:
                 time.sleep(0.1)
                 
-            if correct == 0:
-                popup_wrong.open()
-            else:
+            if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
+            else:
+                popup_wrong.open()
                 
             zeraResposta()
             
@@ -341,10 +349,10 @@ class Game(Screen):
             while correct == -1:
                 time.sleep(0.1)
                 
-            if correct == 0:
-                popup_wrong.open()
-            else:
+            if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
+            else:
+                popup_wrong.open()
                 
             zeraResposta()
             
@@ -381,10 +389,10 @@ class Game(Screen):
             while correct == -1:
                 time.sleep(0.1)
                 
-            if correct == 0:
-                popup_wrong.open()
-            else:
+            if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
+            else:
+                popup_wrong.open()
                 
             zeraResposta()
             
