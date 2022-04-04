@@ -88,6 +88,15 @@ def on_message(client, userdata, msg):
         correct = 0
         ledAceso = 0
         qualJogadorResponde = 0
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S7 b'1'" :
+        print("Vitória do jogador 1")
+        # Dá para add alguma varivel aqui para mostrar a vitória no app
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/RX b'1'" :
+        print("Vitória do jogador 2")
+        # Dá para add alguma varivel aqui para mostrar a vitória no app
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/TX b'1'" :
+        print("Empate")
+        # Dá para add alguma varivel aqui para mostrar o empate no app
 
 # MQTT Cria cliente
 client = mqtt.Client()
@@ -240,11 +249,11 @@ class Game(Screen):
         self.contentB = "Alternativa B"
         self.contentC = "Alternativa C"
         self.contentD = "Alternativa D"
-        client.publish(user+"/S0", payload="0", qos=0, retain=False)
-        zeraResposta()
         client.publish(user+"/S1", payload="1", qos=0, retain=False)
         time.sleep(0.1)
         client.publish(user+"/S1", payload="0", qos=0, retain=False)
+        client.publish(user+"/S0", payload="0", qos=0, retain=False)
+        zeraResposta()
 
     def first(self):
         #Acho q o app não entra nessa função
