@@ -32,6 +32,9 @@ counter = 0
 score = 0
 popup_wrong = Popup(title='Errado', content=Label(text='Resposta errada'), size_hint=(None, None), size=(400, 400))
 popup_correct = Popup(title='Certo', content=Label(text='Resposta correta'), size_hint=(None, None), size=(400, 400))
+popup_player1 = Popup(title='Vitória do jogador 1', content=Label(text='Victor venceu o jogo'), size_hint=(None, None), size=(400, 400))
+popup_player2 = Popup(title='Vitória do jogador 2', content=Label(text='Pedro venceu o jogo'), size_hint=(None, None), size=(400, 400))
+popup_draw = Popup(title='Empate', content=Label(text='O jogo terminou em empate'), size_hint=(None, None), size=(400, 400))
 
 global enable
 enable = 0
@@ -91,12 +94,15 @@ def on_message(client, userdata, msg):
     elif str(msg.topic+" "+str(msg.payload)) == user+"/S7 b'1'" :
         print("Vitória do jogador 1")
         # Dá para add alguma varivel aqui para mostrar a vitória no app
+        popup_player1.open()
     elif str(msg.topic+" "+str(msg.payload)) == user+"/RX b'1'" :
         print("Vitória do jogador 2")
         # Dá para add alguma varivel aqui para mostrar a vitória no app
+        popup_player2.open()
     elif str(msg.topic+" "+str(msg.payload)) == user+"/TX b'1'" :
         print("Empate")
         # Dá para add alguma varivel aqui para mostrar o empate no app
+        popup_draw.open()
 
 # MQTT Cria cliente
 client = mqtt.Client()
