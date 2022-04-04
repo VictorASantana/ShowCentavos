@@ -12,23 +12,49 @@ from kivy.uix.screenmanager import Screen, ScreenManager
 from kivy.lang import Builder
 from kivy.uix.popup import Popup
 from kivy.uix.label import Label
+import paho.mqtt.client as mqtt
+import time
 
 #Variáveis Globais:
 global name
-#Variáveis a serem passadas para a FPGA
 global bitword
+
+#Variáveis de comunicação com a FPGA
 global bitname
+global ledAceso
+ledAceso = 0
+global correct
+correct = -1
+
 #Variáveis usadas pela própria interface
 counter = 0
 score = 0
 popup_wrong = Popup(title='Errado', content=Label(text='Resposta errada'), size_hint=(None, None), size=(400, 400))
 popup_correct = Popup(title='Certo', content=Label(text='Resposta correta'), size_hint=(None, None), size=(400, 400))
-#Variáveis recebidas pela FPGA
-global correct
-correct = 0
+
 global enable
 enable = 0
 
+# Login no MQTT
+user = "grupo1-bancadaA3"
+passwd = "L@Bdygy1A3"
+Broker = "labdigi.wiseful.com.br"
+Port = 80
+KeepAlive = 60
+
+# MQTT (Callback de conexao)
+def on_connect(client, userdata, flags, rc):
+    print("Conectado com codigo " + str(rc))
+
+# MQTT (Callback de mensagem)
+def on_message(client, userdata, msg):
+    print(msg.topic+" "+str(msg.payload)) # Printa no terminal o topico alterado
+
+# MQTT Cria cliente
+client = mqtt.Client()
+client.on_connect = on_connect      
+client.on_message = on_message  
+client.username_pw_set(user, passwd)
 
 #Armazena as perguntas, acessadas via contador
 def questions(counter):
@@ -290,8 +316,11 @@ class ParentApp(App):
         return kv
 
 if __name__ == "__main__":
+    client.connect(Broker, Port, KeepAlive)
+    client.loop_start()
+    
     ParentApp().run()
-
-
-
+    
+    client.loop_stop()
+    client.disconnect()
 
