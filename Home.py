@@ -26,6 +26,9 @@ ledAceso = 0
 global correct
 correct = -1
 global qualJogadorResponde
+qualJogadorResponde = ""
+global quemGanhou
+quemGanhou = ""
 
 #Variáveis usadas pela própria interface
 counter = 0
@@ -49,24 +52,24 @@ KeepAlive = 60
 # MQTT (Callback de conexao)
 def on_connect(client, userdata, flags, rc):
     print("Conectado com codigo " + str(rc))
-    client.subscribe(user+"/E0", qos=0) # Resposta A Jogador 1
-    client.subscribe(user+"/E1", qos=0) # Resposta B Jogador 1
-    client.subscribe(user+"/E2", qos=0) # Resposta C Jogador 1
-    client.subscribe(user+"/E3", qos=0) # Resposta D Jogador 1
-    client.subscribe(user+"/E4", qos=0) # Resposta A Jogador 2
-    client.subscribe(user+"/E5", qos=0) # Resposta B Jogador 2
-    client.subscribe(user+"/E6", qos=0) # Resposta C Jogador 2
-    client.subscribe(user+"/E7", qos=0) # Resposta D Jogador 2
-    client.subscribe(user+"/S0", qos=0) # Jogar
-    client.subscribe(user+"/S1", qos=0) # Reset
-    #client.subscribe(user+"/S2", qos=0) # Botao Jogador 1
-    #client.subscribe(user+"/S3", qos=0) # Botao Jogador 2
-    client.subscribe(user+"/S4", qos=0) # Led Jogador 1
-    client.subscribe(user+"/S5", qos=0) # Led Jogador 2
-    client.subscribe(user+"/S6", qos=0) # Acertou Pergunta
-    client.subscribe(user+"/S7", qos=0) # Vitoria Jogador 1
-    client.subscribe(user+"/RX", qos=0) # Vitoria Jogador 2
-    client.subscribe(user+"/TX", qos=0) # Empate
+    client.subscribe(user+"/E0", qos=0) # Resposta A
+    client.subscribe(user+"/E1", qos=0) # Resposta B
+    client.subscribe(user+"/E2", qos=0) # Resposta C
+    client.subscribe(user+"/E3", qos=0) # Resposta D
+    client.subscribe(user+"/E4", qos=0) # Jogar
+    client.subscribe(user+"/E5", qos=0) # Reset
+    #client.subscribe(user+"/E6", qos=0) # Botao Jogador 1
+    #client.subscribe(user+"/E7", qos=0) # Botao Jogador 2
+    #client.subscribe(user+"/RX", qos=0) # Sobra
+    client.subscribe(user+"/S0", qos=0) # Led Jogador 1
+    client.subscribe(user+"/S1", qos=0) # Led Jogador 2
+    client.subscribe(user+"/S2", qos=0) # Acertou Pergunta
+    client.subscribe(user+"/S3", qos=0) # Vitoria Jogador 1
+    client.subscribe(user+"/S4", qos=0) # Vitoria Jogador 2
+    client.subscribe(user+"/S5", qos=0) # Empate
+    #client.subscribe(user+"/S6", qos=0) # Sobra
+    #client.subscribe(user+"/S7", qos=0) # Sobra
+    #client.subscribe(user+"/TX", qos=0) # Sobra
 
 # MQTT (Callback de mensagem)
 def on_message(client, userdata, msg):
@@ -75,34 +78,29 @@ def on_message(client, userdata, msg):
     global correct
     global ledAceso
     global qualJogadorResponde
+    global quemGanhou
     
-    if str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'" :
+    if str(msg.topic+" "+str(msg.payload)) == user+"/S0 b'1'" :
         ledAceso = 1
         qualJogadorResponde = 0
-    elif str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'1'" :
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S1 b'1'" :
         ledAceso = 1
         qualJogadorResponde = 1
-    elif ((str(msg.topic+" "+str(msg.payload)) == user+"/S6 b'1'") and 
+    elif ((str(msg.topic+" "+str(msg.payload)) == user+"/S2 b'1'") and 
           (ledAceso == 1)) :
         correct = 1
-    elif (((str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'0'") or 
-           (str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'0'")) and
+    elif (((str(msg.topic+" "+str(msg.payload)) == user+"/S0 b'0'") or 
+           (str(msg.topic+" "+str(msg.payload)) == user+"/S1 b'0'")) and
            (correct == -1)) :
         correct = 0
         ledAceso = 0
         qualJogadorResponde = 0
-    elif str(msg.topic+" "+str(msg.payload)) == user+"/S7 b'1'" :
-        print("Vitória do jogador 1")
-        # Dá para add alguma varivel aqui para mostrar a vitória no app
-        popup_player1.open()
-    elif str(msg.topic+" "+str(msg.payload)) == user+"/RX b'1'" :
-        print("Vitória do jogador 2")
-        # Dá para add alguma varivel aqui para mostrar a vitória no app
-        popup_player2.open()
-    elif str(msg.topic+" "+str(msg.payload)) == user+"/TX b'1'" :
-        print("Empate")
-        # Dá para add alguma varivel aqui para mostrar o empate no app
-        popup_draw.open()
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S3 b'1'" :
+        quemGanhou = "jogador 1"
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'" :
+        quemGanhou = "jogador 2"
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S5 b'1'" :
+        quemGanhou = "Empate"
 
 # MQTT Cria cliente
 client = mqtt.Client()
@@ -115,10 +113,7 @@ def zeraResposta():
     client.publish(user+"/E1", payload="0", qos=0, retain=False)
     client.publish(user+"/E2", payload="0", qos=0, retain=False)
     client.publish(user+"/E3", payload="0", qos=0, retain=False)
-    client.publish(user+"/E4", payload="0", qos=0, retain=False)
-    client.publish(user+"/E5", payload="0", qos=0, retain=False)
-    client.publish(user+"/E6", payload="0", qos=0, retain=False)
-    client.publish(user+"/E7", payload="0", qos=0, retain=False)
+    
 
 #Armazena as perguntas, acessadas via contador
 def questions(counter):
@@ -255,14 +250,15 @@ class Game(Screen):
         self.contentB = "Alternativa B"
         self.contentC = "Alternativa C"
         self.contentD = "Alternativa D"
-        client.publish(user+"/S1", payload="1", qos=0, retain=False)
+        client.publish(user+"/E5", payload="1", qos=0, retain=False)
         time.sleep(0.1)
-        client.publish(user+"/S1", payload="0", qos=0, retain=False)
-        client.publish(user+"/S0", payload="0", qos=0, retain=False)
+        client.publish(user+"/E5", payload="0", qos=0, retain=False)
+        client.publish(user+"/E4", payload="0", qos=0, retain=False)
         zeraResposta()
+        global quemGanhou
+        quemGanhou = ""
 
     def first(self):
-        #Acho q o app não entra nessa função
         global counter
         if counter < 16:
             global bitname
@@ -272,18 +268,23 @@ class Game(Screen):
         bitword = "1000"
         # print(bitword)
         
-        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
-        client.publish(user+"/S0", payload="1", qos=0, retain=False)
-        
+        global quemGanhou
         global qualJogadorResponde
+        global bitname
         global correct
         correct = -1
         
-        global bitname
-        if bitname == 0 :
+        # Responde a pergunta
+        if bitname == qualJogadorResponde :
             client.publish(user+"/E0", payload="1", qos=0, retain=False)
-        elif bitname == 1 :
+            time.sleep(1)
+            client.publish(user+"/E0", payload="0", qos=0, retain=False)
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        elif qualJogadorResponde == "" :
             client.publish(user+"/E4", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E4", payload="0", qos=0, retain=False)
+            time.sleep(0.1)
 
         global counter
         if 0 < counter < 16:
@@ -296,8 +297,6 @@ class Game(Screen):
             else:
                 popup_wrong.open()
             
-            zeraResposta()
-            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -311,24 +310,35 @@ class Game(Screen):
             self.contentB = "Alternativa B"
             self.contentC = "Alternativa C"
             self.contentD = "Alternativa D"
-
+            if quemGanhou == "jogador 1" :
+                popup_player1.open()
+            elif quemGanhou == "jogador 2" :
+                popup_player2.open()
+            elif quemGanhou == "Empate" :
+                popup_draw.open()
 
 
     def btnB(self):
         bitword = "0100"
         # print(bitword)
         
-        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
-        client.publish(user+"/S0", payload="1", qos=0, retain=False)
-        
+        global quemGanhou
+        global qualJogadorResponde
+        global bitname
         global correct
         correct = -1
         
-        global bitname
-        if bitname == 0 :
+        # Responde a pergunta
+        if bitname == qualJogadorResponde :
             client.publish(user+"/E1", payload="1", qos=0, retain=False)
-        elif bitname == 1 :
-            client.publish(user+"/E5", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E1", payload="0", qos=0, retain=False)
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        elif qualJogadorResponde == "" :
+            client.publish(user+"/E4", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E4", payload="0", qos=0, retain=False)
+            time.sleep(0.1)
 
         global counter
         if 0 < counter < 16:
@@ -339,8 +349,6 @@ class Game(Screen):
                 popup_correct.open()
             else:
                 popup_wrong.open()
-                
-            zeraResposta()
             
         if counter < 16:
             self.content = str(questions(counter))
@@ -355,22 +363,37 @@ class Game(Screen):
             self.contentB = "Alternativa B"
             self.contentC = "Alternativa C"
             self.contentD = "Alternativa D"
+            if quemGanhou == "jogador 1" :
+                popup_player1.open()
+            elif quemGanhou == "jogador 2" :
+                popup_player2.open()
+            elif quemGanhou == "Empate" :
+                popup_draw.open()
 
     def btnC(self):
         bitword = "0010"
         # print(bitword)
         
         # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
-        client.publish(user+"/S0", payload="1", qos=0, retain=False)
+        client.publish(user+"/E4", payload="1", qos=0, retain=False)
         
+        global quemGanhou
+        global qualJogadorResponde
+        global bitname
         global correct
         correct = -1
         
-        global bitname
-        if bitname == 0 :
+        # Responde a pergunta
+        if bitname == qualJogadorResponde :
             client.publish(user+"/E2", payload="1", qos=0, retain=False)
-        elif bitname == 1 :
-            client.publish(user+"/E6", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E2", payload="0", qos=0, retain=False)
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        elif qualJogadorResponde == "" :
+            client.publish(user+"/E4", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E4", payload="0", qos=0, retain=False)
+            time.sleep(0.1)
             
         global counter
         if 0 < counter < 16:
@@ -397,23 +420,35 @@ class Game(Screen):
             self.contentB = "Alternativa B"
             self.contentC = "Alternativa C"
             self.contentD = "Alternativa D"
+            if quemGanhou == "jogador 1" :
+                popup_player1.open()
+            elif quemGanhou == "jogador 2" :
+                popup_player2.open()
+            elif quemGanhou == "Empate" :
+                popup_draw.open()
 
 
     def btnD(self):
         bitword = "0001"
         # print(bitword)
         
-        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
-        client.publish(user+"/S0", payload="1", qos=0, retain=False)
-        
+        global quemGanhou
+        global qualJogadorResponde
+        global bitname
         global correct
         correct = -1
         
-        global bitname
-        if bitname == 0 :
+        # Responde a pergunta
+        if bitname == qualJogadorResponde :
             client.publish(user+"/E3", payload="1", qos=0, retain=False)
-        elif bitname == 1 :
-            client.publish(user+"/E7", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E3", payload="0", qos=0, retain=False)
+        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
+        elif qualJogadorResponde == "" :
+            client.publish(user+"/E4", payload="1", qos=0, retain=False)
+            time.sleep(1)
+            client.publish(user+"/E4", payload="0", qos=0, retain=False)
+            time.sleep(0.1)
         
         global counter
         if 0 < counter < 16:
@@ -440,6 +475,12 @@ class Game(Screen):
             self.contentB = "Alternativa B"
             self.contentC = "Alternativa C"
             self.contentD = "Alternativa D"
+            if quemGanhou == "jogador 1" :
+                popup_player1.open()
+            elif quemGanhou == "jogador 2" :
+                popup_player2.open()
+            elif quemGanhou == "Empate" :
+                popup_draw.open()
 
 
 
