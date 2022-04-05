@@ -251,12 +251,13 @@ class Game(Screen):
         self.contentC = "Alternativa C"
         self.contentD = "Alternativa D"
         client.publish(user+"/E5", payload="1", qos=0, retain=False)
-        time.sleep(0.1)
+        time.sleep(1)
         client.publish(user+"/E5", payload="0", qos=0, retain=False)
-        client.publish(user+"/E4", payload="0", qos=0, retain=False)
         zeraResposta()
         global quemGanhou
         quemGanhou = ""
+        global qualJogadorResponde
+        qualJogadorResponde = ""
 
     def first(self):
         global counter
@@ -404,8 +405,6 @@ class Game(Screen):
                 popup_correct.open()
             else:
                 popup_wrong.open()
-                
-            zeraResposta()
             
         if counter < 16:
             self.content = str(questions(counter))
@@ -459,8 +458,6 @@ class Game(Screen):
                 popup_correct.open()
             else:
                 popup_wrong.open()
-                
-            zeraResposta()
             
         if counter < 16:
             self.content = str(questions(counter))
