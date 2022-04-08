@@ -38,6 +38,7 @@ popup_correct = Popup(title='Certo', content=Label(text='Resposta correta'), siz
 popup_player1 = Popup(title='Vitória do jogador 1', content=Label(text='Victor venceu o jogo'), size_hint=(None, None), size=(400, 400))
 popup_player2 = Popup(title='Vitória do jogador 2', content=Label(text='Pedro venceu o jogo'), size_hint=(None, None), size=(400, 400))
 popup_draw = Popup(title='Empate', content=Label(text='O jogo terminou em empate'), size_hint=(None, None), size=(400, 400))
+popup_notan = Popup(title='Ops', content=Label(text='O outro jogador respondeu'), size_hint=(None, None), size=(400, 400))
 
 global enable
 enable = 0
@@ -277,13 +278,11 @@ class Game(Screen):
         
         # Responde a pergunta
         if bitname == qualJogadorResponde :
-            self.player = "Jogador 1 responde a pergunta."
             client.publish(user+"/E0", payload="1", qos=0, retain=False)
             time.sleep(1)
             client.publish(user+"/E0", payload="0", qos=0, retain=False)
         # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
         elif qualJogadorResponde == "" :
-            self.player = "Jogador 2 responde a pergunta."
             client.publish(user+"/E4", payload="1", qos=0, retain=False)
             time.sleep(1)
             client.publish(user+"/E4", payload="0", qos=0, retain=False)
@@ -297,8 +296,10 @@ class Game(Screen):
             # Só considera certo se você pediu para apertar a resposta primeiro
             if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
-            else:
+            elif correct == 0 and qualJogadorResponde == bitname:
                 popup_wrong.open()
+            else:
+                popup_notan.open()
             
             qualJogadorResponde = -1
             
@@ -352,8 +353,10 @@ class Game(Screen):
                 
             if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
-            else:
+            elif correct == 0 and qualJogadorResponde == bitname:
                 popup_wrong.open()
+            else:
+                popup_notan.open()
                 
             qualJogadorResponde = -1
             
@@ -409,8 +412,10 @@ class Game(Screen):
                 
             if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
-            else:
+            elif correct == 0 and qualJogadorResponde == bitname:
                 popup_wrong.open()
+            else:
+                popup_notan.open()
             
             qualJogadorResponde = -1
             
@@ -464,8 +469,10 @@ class Game(Screen):
                 
             if correct == 1 and qualJogadorResponde == bitname:
                 popup_correct.open()
-            else:
+            elif correct == 0 and qualJogadorResponde == bitname:
                 popup_wrong.open()
+            else:
+                popup_notan.open()
             
             qualJogadorResponde = -1
             
