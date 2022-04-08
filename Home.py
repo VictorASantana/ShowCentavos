@@ -241,6 +241,7 @@ class Game(Screen):
     contentB = StringProperty()
     contentC = StringProperty()
     contentD = StringProperty()
+    player = StringProperty("Esperando resposta. ")
 
     def reset(self):
         global counter
@@ -277,11 +278,13 @@ class Game(Screen):
         
         # Responde a pergunta
         if bitname == qualJogadorResponde :
+            self.player = "Jogador 1 responde a pergunta."
             client.publish(user+"/E0", payload="1", qos=0, retain=False)
             time.sleep(1)
             client.publish(user+"/E0", payload="0", qos=0, retain=False)
         # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
         elif qualJogadorResponde == "" :
+            self.player = "Jogador 2 responde a pergunta."
             client.publish(user+"/E4", payload="1", qos=0, retain=False)
             time.sleep(1)
             client.publish(user+"/E4", payload="0", qos=0, retain=False)
