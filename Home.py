@@ -94,7 +94,6 @@ def on_message(client, userdata, msg):
            (correct == -1)) :
         correct = 0
         ledAceso = 0
-        qualJogadorResponde = 0
     elif str(msg.topic+" "+str(msg.payload)) == user+"/S3 b'1'" :
         quemGanhou = "jogador 1"
     elif str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'" :
@@ -301,6 +300,8 @@ class Game(Screen):
             else:
                 popup_wrong.open()
             
+            qualJogadorResponde = -1
+            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -353,6 +354,8 @@ class Game(Screen):
                 popup_correct.open()
             else:
                 popup_wrong.open()
+                
+            qualJogadorResponde = -1
             
         if counter < 16:
             self.content = str(questions(counter))
@@ -409,6 +412,8 @@ class Game(Screen):
             else:
                 popup_wrong.open()
             
+            qualJogadorResponde = -1
+            
         if counter < 16:
             self.content = str(questions(counter))
             self.contentA = str(answerA(counter))
@@ -461,6 +466,8 @@ class Game(Screen):
                 popup_correct.open()
             else:
                 popup_wrong.open()
+            
+            qualJogadorResponde = -1
             
         if counter < 16:
             self.content = str(questions(counter))
