@@ -68,7 +68,7 @@ def on_connect(client, userdata, flags, rc):
     client.subscribe(user+"/S3", qos=0) # Vitoria Jogador 1
     client.subscribe(user+"/S4", qos=0) # Vitoria Jogador 2
     client.subscribe(user+"/S5", qos=0) # Empate
-    #client.subscribe(user+"/S6", qos=0) # Sobra
+    client.subscribe(user+"/S6", qos=0) # Errou Pergunta
     #client.subscribe(user+"/S7", qos=0) # Sobra
     #client.subscribe(user+"/TX", qos=0) # Sobra
 
@@ -82,19 +82,15 @@ def on_message(client, userdata, msg):
     global quemGanhou
     
     if str(msg.topic+" "+str(msg.payload)) == user+"/S0 b'1'" :
-        ledAceso = 1
+        #ledAceso = 1
         qualJogadorResponde = 0
     elif str(msg.topic+" "+str(msg.payload)) == user+"/S1 b'1'" :
-        ledAceso = 1
+        #ledAceso = 1
         qualJogadorResponde = 1
-    elif ((str(msg.topic+" "+str(msg.payload)) == user+"/S2 b'1'") and 
-          (ledAceso == 1)) :
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S2 b'1'" :
         correct = 1
-    elif (((str(msg.topic+" "+str(msg.payload)) == user+"/S0 b'0'") or 
-           (str(msg.topic+" "+str(msg.payload)) == user+"/S1 b'0'")) and
-           (correct == -1)) :
+    elif str(msg.topic+" "+str(msg.payload)) == user+"/S6 b'1'" :
         correct = 0
-        ledAceso = 0
     elif str(msg.topic+" "+str(msg.payload)) == user+"/S3 b'1'" :
         quemGanhou = "jogador 1"
     elif str(msg.topic+" "+str(msg.payload)) == user+"/S4 b'1'" :
@@ -383,9 +379,6 @@ class Game(Screen):
     def btnC(self):
         bitword = "0010"
         # print(bitword)
-        
-        # Ativa o botão jogar, serve para a parte do aperte qualquer botão para iniciar
-        client.publish(user+"/E4", payload="1", qos=0, retain=False)
         
         global quemGanhou
         global qualJogadorResponde
